@@ -5,6 +5,7 @@ int getMaxDay(int year, int month);
 bool isLeap(int year);
 bool isNum(const std::string &str);
 bool isFormat(const std::string &t_dateString);
+
 bool isFormat(const std::string &t_dateString) {
 	if (t_dateString.length() != 16)
 		return false;
@@ -77,7 +78,7 @@ Date::Date(int t_year, int t_month, int t_day, int t_hour, int t_minute) {
  	m_minute = t_minute;
 }
 Date::Date(const std::string &dateString) {
-	if (!isValid(dateString) )
+	if (!isFormat(dateString) )
 		m_year = m_month = m_day = m_hour = m_minute = 0;
 	else {
 	 	m_year = strToInt(dateString.substr(0, 4) );
