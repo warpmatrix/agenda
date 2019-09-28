@@ -123,8 +123,8 @@ bool Date::isValid(const Date &t_date) {
  	bool monthIsValid = (t_date.m_month >= 1) && (t_date.m_month <= 12);
  	int maxDay = getMaxDay(t_date.m_year, t_date.m_month);
  	bool dayIsValid = (t_date.m_day >= 1) && (t_date.m_day <= maxDay);
- 	bool hourIsValid = (t_date.m_hour >= 1) && (t_date.m_hour <= 23);
- 	bool minuteIsValid = (t_date.m_minute >= 1) && (t_date.m_minute <= 59);
+ 	bool hourIsValid = (t_date.m_hour >= 0) && (t_date.m_hour <= 23);
+ 	bool minuteIsValid = (t_date.m_minute >= 0) && (t_date.m_minute <= 59);
  	bool isValid = yearIsValid && monthIsValid && dayIsValid && hourIsValid && minuteIsValid;
  	return isValid;
 }
