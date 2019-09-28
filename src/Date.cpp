@@ -6,6 +6,8 @@ bool isLeap(int year);
 bool isNum(const std::string &str);
 bool isFormat(const std::string &t_dateString);
 bool isFormat(const std::string &t_dateString) {
+	if (t_dateString.length() != 16)
+		return false;
  	if (!isNum(t_dateString.substr(0, 4)) )
  		return false;
  	if (t_dateString[4] != '-')
@@ -116,7 +118,9 @@ bool Date::isValid(const Date &t_date) {
  	bool monthIsValid = (t_date.m_month >= 1) && (t_date.m_month <= 12);
  	int maxDay = getMaxDay(t_date.m_year, t_date.m_month);
  	bool dayIsValid = (t_date.m_day >= 1) && (t_date.m_day <= maxDay);
- 	bool isValid = yearIsValid && monthIsValid && dayIsValid;
+ 	bool hourIsValid = (t_date.m_hour >= 1) && (t_date.m_hour <= 59);
+ 	bool minuteIsValid = (t_date.m_minute >= 1) && (t_date.m_minute <= 59);
+ 	bool isValid = yearIsValid && monthIsValid && dayIsValid && hourIsValid && minuteIsValid;
  	return isValid;
 }
 
