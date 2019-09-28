@@ -33,10 +33,11 @@ void Meeting::addParticipator(const std::string &t_participator) {
 	m_participators.push_back(t_participator);
 }
 void Meeting::removeParticipator(const std::string &t_participator) {
-	for (auto it=m_participators.begin(); it!=m_participators.end(); it++)
+	std::vector<std::string>::const_iterator it;
+	for (it=m_participators.begin(); it!=m_participators.end(); it++)
 		if (*it == t_participator) {
-			break;
 			m_participators.erase(it);
+			break;
 		}
 }
 Date Meeting::getStartDate(void) const {
@@ -58,7 +59,8 @@ void Meeting::setTitle(const std::string &t_title) {
 	m_title = t_title;
 }
 bool Meeting::isParticipator(const std::string &t_username) const {
-	for (auto it=m_participators.begin(); it!=m_participators.end(); it++)
+	std::vector<std::string>::const_iterator it;
+	for (it=m_participators.begin(); it!=m_participators.end(); it++)
 		if (*it == t_username) return true;
 	return false;
 }
