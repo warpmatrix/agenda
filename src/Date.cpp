@@ -1,5 +1,31 @@
 #include "Date.hpp"
 
+int strToInt(const std::string numStr);
+int getMaxDay(int year, int month);
+bool isLeap(int year);
+bool isNum(const std::string &str);
+bool isFormat(const std::string &t_dateString);
+bool isFormat(const std::string &t_dateString) {
+ 	if (!isNum(t_dateString.substr(0, 4)) )
+ 		return false;
+ 	if (t_dateString[4] != '-')
+ 		return false;
+ 	if (!isNum(t_dateString.substr(5, 2)) )
+ 		return false;
+ 	if (t_dateString[7] != '-')
+ 		return false;
+ 	if (!isNum(t_dateString.substr(8, 2)) )
+ 		return false;
+ 	if (t_dateString[10] != '/')
+ 		return false;
+ 	if (!isNum(t_dateString.substr(11, 2)) )
+ 		return false;
+ 	if (t_dateString[13] != ':')
+ 		return false;
+ 	if (!isNum(t_dateString.substr(14, 2)) )
+ 		return false;
+ 	return true;
+}
 int strToInt(const std::string numStr) {
   int num = 0;
   for (int i=0; i<numStr.length(); i++)
@@ -93,27 +119,7 @@ bool Date::isValid(const Date &t_date) {
  	bool isValid = yearIsValid && monthIsValid && dayIsValid;
  	return isValid;
 }
-bool Date::isFormat(const std::string &t_dateString) {
- 	if (!isNum(t_dateString.substr(0, 4)) )
- 		return false;
- 	if (t_dateString[4] != '-')
- 		return false;
- 	if (!isNum(t_dateString.substr(5, 2)) )
- 		return false;
- 	if (t_dateString[7] != '-')
- 		return false;
- 	if (!isNum(t_dateString.substr(8, 2)) )
- 		return false;
- 	if (t_dateString[10] != '/')
- 		return false;
- 	if (!isNum(t_dateString.substr(11, 2)) )
- 		return false;
- 	if (t_dateString[13] != ':')
- 		return false;
- 	if (!isNum(t_dateString.substr(14, 2)) )
- 		return false;
- 	return true;
-}
+
 Date Date::stringToDate(const std::string &t_dateString) {
  	if (!isFormat(t_dateString) )
  		return Date();
