@@ -6,7 +6,7 @@ BUILD_DIR := build
 BIN_DIR := bin
 INCLUDE := -I./$(INC_DIR)
 
-$(BIN_DIR)/main: $(BUILD_DIR)/User.o $(BUILD_DIR)/main.o $(BUILD_DIR)/Date.o
+$(BIN_DIR)/main.out: $(BUILD_DIR)/User.o $(BUILD_DIR)/main.o $(BUILD_DIR)/Date.o
 	@mkdir -p $(BIN_DIR)
 	$(CC) $(FLAGS) $(INCLUDE) $^ -o $@
 
