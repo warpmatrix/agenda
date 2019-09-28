@@ -4,6 +4,10 @@
 #include <initializer_list>
 #include <string>
 
+int strToInt(const std::string numStr);
+int maxDay(int year, int month);
+int isLeap(int year);
+
 class Date {
  public:
   /**
@@ -85,6 +89,7 @@ class Date {
   *   @return the bool indicate valid or not
   */
   static bool isValid(const Date &t_date);
+  static bool isFormat(const std::string &t_dateString);
 
   /**
   * @brief convert a string to date, if the format is not correct return
