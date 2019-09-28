@@ -26,15 +26,14 @@ void Meeting::setSponsor(const std::string &t_sponsor) {
 std::vector<std::string> Meeting::getParticipator(void) const {
 	return m_participators;
 }
-void Meeting::setParticipator(const std::vector<std::string> t_participators) {
+void Meeting::setParticipator(const std::vector<std::string> &t_participators) {
 	m_participators = t_participators;
 }
 void Meeting::addParticipator(const std::string &t_participator) {
 	m_participators.push_back(t_participator);
 }
-void removeParticipator(const std::string &t_participator) {
-	std::vector<std::string>::iterator it;
-	for (it=m_participators.begin(); it!=m_participators.end(); it++)
+void Meeting::removeParticipator(const std::string &t_participator) {
+	for (auto it=m_participators.begin(); it!=m_participators.end(); it++)
 		if (*it == t_participator) {
 			break;
 			m_participators.erase(it);
@@ -59,8 +58,7 @@ void Meeting::setTitle(const std::string &t_title) {
 	m_title = t_title;
 }
 bool Meeting::isParticipator(const std::string &t_username) const {
-	std::vector<std::string>::iterator it;
-	for (it=m_participators.begin(); it!=m_participators.end(); it++)
+	for (auto it=m_participators.begin(); it!=m_participators.end(); it++)
 		if (*it == t_username) return true;
 	return false;
 }
