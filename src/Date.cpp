@@ -77,11 +77,15 @@ Date::Date(int t_year, int t_month, int t_day, int t_hour, int t_minute) {
  	m_minute = t_minute;
 }
 Date::Date(const std::string &dateString) {
- 	m_year = strToInt(dateString.substr(0, 4) );
- 	m_month = strToInt(dateString.substr(5, 2) );
- 	m_day = strToInt(dateString.substr(8, 2) );
- 	m_hour = strToInt(dateString.substr(11, 2) );
- 	m_minute = strToInt(dateString.substr(14, 2) );
+	if (!isValid(dateString) )
+		m_year = m_month = m_day = m_hour = m_minute = 0;
+	else {
+	 	m_year = strToInt(dateString.substr(0, 4) );
+	 	m_month = strToInt(dateString.substr(5, 2) );
+	 	m_day = strToInt(dateString.substr(8, 2) );
+	 	m_hour = strToInt(dateString.substr(11, 2) );
+	 	m_minute = strToInt(dateString.substr(14, 2) );
+	}
 }
 int Date::getYear(void) const {
  	return m_year;
