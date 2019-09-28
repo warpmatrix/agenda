@@ -6,7 +6,7 @@ int strToInt(const std::string numStr) {
     num = num*10 + numStr[i]-'0';
   return num;
 }
-int maxDay(int year, int month) {
+int getMaxDay(int year, int month) {
 	int maxDay;
 	switch(month) {
 	case 2:
@@ -86,10 +86,10 @@ void Date::setMinute(const int t_minute) {
  	m_minute = t_minute;
 }
 bool Date::isValid(const Date &t_date) {
- 	bool yearIsValid = (m_year >= 1000) && (m_year <= 9999);
- 	bool monthIsValid = (m_month >= 1) && (m_month <= 12);
- 	int maxDay = maxDay(m_year, m_month);
- 	bool dayIsValid = (m_day >= 1) && (m_day <= maxDay);
+ 	bool yearIsValid = (t_date.m_year >= 1000) && (t_date.m_year <= 9999);
+ 	bool monthIsValid = (t_date.m_month >= 1) && (t_date.m_month <= 12);
+ 	int maxDay = getMaxDay(t_date.m_year, t_date.m_month);
+ 	bool dayIsValid = (t_date.m_day >= 1) && (t_date.m_day <= maxDay);
  	bool isValid = yearIsValid && monthIsValid && dayIsValid;
  	return isValid;
 }
@@ -133,7 +133,7 @@ std::string Date::dateToString(const Date &t_date) {
 	str += std::to_string(t_date.m_minute);
 	return str;
 }
-Date &Date::operator=(const Date &t_date) const {
+Date &Date::operator=(const Date &t_date) {
 	m_year = t_date.m_year;
 	m_month = t_date.m_month;
 	m_day = t_date.m_day;

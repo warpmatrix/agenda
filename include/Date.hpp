@@ -5,8 +5,9 @@
 #include <string>
 
 int strToInt(const std::string numStr);
-int maxDay(int year, int month);
-int isLeap(int year);
+int getMaxDay(int year, int month);
+bool isLeap(int year);
+bool isNum(const std::string &str);
 
 class Date {
  public:
