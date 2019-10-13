@@ -1,3 +1,5 @@
 src/main.cpp
+src/test.cpp
 build/
 bin/
+.vscode/
