@@ -154,7 +154,7 @@ bool Storage::writeToFile(void) {
 
 void Storage::createUser(const User &t_user) {
 	m_userList.push_back(t_user);
-	m_dirty = true;
+	// m_dirty = true;
 }
 
 std::list<User> Storage::queryUser(std::function<bool(const User &)> filter) const {
@@ -195,7 +195,7 @@ int Storage::deleteUser(std::function<bool(const User &)> filter) {
 
 void Storage::createMeeting(const Meeting &t_meeting) {
 	m_meetingList.push_back(t_meeting);
-	m_dirty = true;
+	// m_dirty = true;
 }
 
 std::list<Meeting> Storage::queryMeeting(
