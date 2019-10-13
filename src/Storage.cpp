@@ -1,15 +1,16 @@
 #include "Storage.hpp"
 #include "Path.hpp"
 #include <fstream>
+#include <typeinfo>
 
 std::shared_ptr<Storage> Storage::m_instance = nullptr;
 
 Storage::Storage() {
-	m_dirty = false;
-	readFromFile();	
+	m_dirty = !readFromFile();	
 }
 Storage::~Storage() {
 	sync();
+	m_instance = nullptr;
 }
 std::shared_ptr<Storage> Storage::getInstance(void) {
 	if (!m_instance)
@@ -111,18 +112,27 @@ bool Storage::writeToFile(void) {
 	std::ofstream fileout;
 	fileout.open(Path::meetingPath, std::ios::out);
 	if (fileout.is_open() ) {
-		std::list<Meeting>::const_iterator it;
-		for (it=m_meetingList.begin(); it!=m_meetingList.end(); it++) {
+		// std::list<Meeting>::const_iterator it;
+		for (auto it=m_meetingList.begin(); it!=m_meetingList.end(); it++) {
 			fileout << '"' << it->getSponsor() << "\",\"";
-			std::vector<std::string>::const_iterator pIt;
-			for (pIt=it->getParticipator().begin(); pIt!=it->getParticipator().end(); pIt++) {
-				if (pIt == it->getParticipator().begin() )
-				  fileout << *pIt;
-				else fileout << '&' << *pIt;
+			// std::vector<std::string>::const_iterator pIt;
+
+			std::vector<std::string> partis = it->getParticipator();
+			for (int i = 0;i < it->getParticipator().size(); i ++){
+				if (i == 0) fileout << partis[i];
+				else fileout << '&' << partis[i];
 			}
+			// for (auto pIt=it->getParticipator().begin(); pIt!=it->getParticipator().end(); pIt++) {
+			// 	if (pIt == it->getParticipator().begin() ) {
+			// 		printf("w\n");
+			// 		// std::cout << *pIt << '\n';
+			// 		// fileout << *pIt;
+			// 	}
+			// 	else fileout << '&' << *pIt;
+			// }
 			fileout << "\",\"" << Date::dateToString(it->getStartDate());
 			fileout << "\",\"" << Date::dateToString(it->getEndDate());
-			fileout << "\",\"" << it->getTitle() << '\n';
+			fileout << "\",\"" << it->getTitle() << "\"\n";
 		}
 		fileout.close();
 	}
@@ -134,7 +144,7 @@ bool Storage::writeToFile(void) {
 			fileout << '"' << it->getName();
 			fileout << "\",\"" << it->getPassword();
 			fileout << "\",\"" << it->getEmail();
-			fileout << "\",\"" << it->getPhone() << '\n';
+			fileout << "\",\"" << it->getPhone() << "\"\n";
 		}
 		fileout.close();
 	}
@@ -144,6 +154,7 @@ bool Storage::writeToFile(void) {
 
 void Storage::createUser(const User &t_user) {
 	m_userList.push_back(t_user);
+	m_dirty = true;
 }
 
 std::list<User> Storage::queryUser(std::function<bool(const User &)> filter) const {
@@ -184,6 +195,7 @@ int Storage::deleteUser(std::function<bool(const User &)> filter) {
 
 void Storage::createMeeting(const Meeting &t_meeting) {
 	m_meetingList.push_back(t_meeting);
+	m_dirty = true;
 }
 
 std::list<Meeting> Storage::queryMeeting(
