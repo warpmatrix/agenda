@@ -116,7 +116,6 @@ bool Storage::writeToFile(void) {
 		for (auto it=m_meetingList.begin(); it!=m_meetingList.end(); it++) {
 			fileout << '"' << it->getSponsor() << "\",\"";
 			// std::vector<std::string>::const_iterator pIt;
-
 			std::vector<std::string> partis = it->getParticipator();
 			for (int i = 0;i < it->getParticipator().size(); i ++){
 				if (i == 0) fileout << partis[i];
@@ -154,7 +153,7 @@ bool Storage::writeToFile(void) {
 
 void Storage::createUser(const User &t_user) {
 	m_userList.push_back(t_user);
-	// m_dirty = true;
+	m_dirty = true;
 }
 
 std::list<User> Storage::queryUser(std::function<bool(const User &)> filter) const {
@@ -183,19 +182,16 @@ int Storage::updateUser(std::function<bool(const User &)> filter,
 int Storage::deleteUser(std::function<bool(const User &)> filter) {
 	int count = 0;
 	std::list<User>::iterator it;
-	for (it=m_userList.begin(); it!=m_userList.end(); it++) {
-		if (filter(*it) ) {
-			m_userList.erase(it);
-			count++;
-		}
-	}
+	for (it=m_userList.begin(); it!=m_userList.end(); it++)
+		if (filter(*it) ) count++;
+	m_userList.remove_if(filter);
 	if (count) m_dirty = true;
 	return count;
 }
 
 void Storage::createMeeting(const Meeting &t_meeting) {
 	m_meetingList.push_back(t_meeting);
-	// m_dirty = true;
+	m_dirty = true;
 }
 
 std::list<Meeting> Storage::queryMeeting(
@@ -225,12 +221,9 @@ int Storage::updateMeeting(std::function<bool(const Meeting &)> filter,
 int Storage::deleteMeeting(std::function<bool(const Meeting &)> filter) {
 	int count=0;
 	std::list<Meeting>::iterator it;
-	for (it=m_meetingList.begin(); it!=m_meetingList.end(); it++) {
-		if (filter(*it) ) {
-			m_meetingList.erase(it);
-			count++;
-		}
-	}
+	for (it=m_meetingList.begin(); it!=m_meetingList.end(); it++)
+		if (filter(*it) ) count++;
+	m_meetingList.remove_if(filter);
 	if (count) m_dirty = true;
 	return count;
 }
