@@ -40,7 +40,7 @@ bool Storage::readFromFile(void) {
 							if (line[j] == '&' || line[j] == '"') {
 								std::string participator = line.substr(index, j-index);
 								n_meeting.addParticipator(participator);
-								index = j;
+								index = j+1;
 							}
 						}
 						break;
