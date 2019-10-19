@@ -10,23 +10,6 @@ AgendaService::~AgendaService() {
 }
 
 bool AgendaService::userLogIn(const std::string &userName, const std::string &password) {
-    /*
-    std::function<bool(const User &)> filter = [&userName](const User& t_user) {
-        if(t_user.getName() == userName)
-            return true;
-        return false;
-    };
-    std::list<User> matched_users = m_storage->queryUser(filter);
-    
-
-    std::list<User> users = listAllUsers();
-    std::list<User>::const_iterator i;
-    
-    for(i = users.begin(); i != users.end(); i++) {
-        if(i->getName() == userName && i->getPassword() == password)
-            return true;
-    }
-    */
     std::function<bool(const User &)> filter = [&userName, &password](const User& t_user) {
         return t_user.getName() == userName && t_user.getPassword() == password;
     };
@@ -38,12 +21,6 @@ bool AgendaService::userRegister(const std::string &userName, const std::string 
                     const std::string &email, const std::string &phone) {
     
     std::function<bool(const User &)> filter = [&userName](const User& t_user) {
-        
-        /*
-        if(t_user.getName() == userName)
-            return true;
-        return false;
-        */
         return t_user.getName() == userName;
     };
 
@@ -56,58 +33,6 @@ bool AgendaService::userRegister(const std::string &userName, const std::string 
     m_storage->createUser(user);
     return true;
 }
-
-/*
-bool AgendaService::deleteUser(const std::string &userName, const std::string &password) {
-    
-    std::function<bool(const Meeting &)> sponsor_filter = [&userName](const Meeting& t_meeting) {
-        if(t_meeting.getSponsor() == userName)
-            return true;
-        return false;
-    };
-
-    m_storage->deleteMeeting(sponsor_filter);
-
-    
-    std::function<bool(const Meeting &)> participator_filter = [&userName](const Meeting& t_meeting) {
-        if(t_meeting.isParticipator(userName))
-            return true;
-        return false;
-    };
-    std::list<Meeting> participating = m_storage->queryMeeting(participator_filter);
-    
-    std::list<Meeting> participating = listAllParticipateMeetings(userName);
-    std::list<Meeting>::const_iterator i;
-    for(i = participating.begin(); i != participating.end(); i++) {
-        
-        bool success = removeMeetingParticipator(i->getSponsor(), i->getTitle(), userName);
-        if(!success)
-            return false;
-    }
-
-    std::function<bool(const Meeting &)> empty_filter = [&userName](const Meeting& t_meeting) {
-        
-        if(t_meeting.getParticipator().empty())
-            return true;
-        return false;
-        
-        return t_meeting.getParticipator().empty();
-    };
-    m_storage->deleteMeeting(empty_filter);
-
-
-    std::function<bool(const User &)> user_filter = [&userName, &password](const User & t_user) {
-        
-        if(t_user.getName() == userName && t_user.getPassword() == password)
-           return true;
-        return false;
-        
-       return t_user.getName() == userName && t_user.getPassword() == password;
-    };
-
-    return m_storage->deleteUser(user_filter);
-}
-*/
 
 bool AgendaService::deleteUser(const std::string &userName, const std::string &password) {
     
@@ -134,7 +59,6 @@ std::list<User> AgendaService::listAllUsers(void) const {
     return m_storage->queryUser(filter);
 }
 
-//////
 bool AgendaService::createMeeting(const std::string &userName, const std::string &title,
                      const std::string &startDate, const std::string &endDate,
                      const std::vector<std::string> &participator) {
@@ -146,29 +70,6 @@ bool AgendaService::createMeeting(const std::string &userName, const std::string
     if(participator.empty())
         return false;
 
-    /*
-    bool allIn = true;
-    std::list<User> user = listAllUsers();
-    int user_size = user.size();
-    int participator_size = participator.size();
-    for(int j = 0; j < participator_size; j++) {
-        bool in = false;
-        std::list<User>::const_iterator k;
-        for(k = user.begin(); k != user.end(); k++) {
-            if(participator[j] == k->getName()) {
-                in = true;
-                break;
-            }
-        }
-        if(!in) {
-            allIn = false;
-            break;
-        }
-    }
-    if(!allIn)
-        return false;
-    */
-    
     bool have = false;
     std::list<User> user = listAllUsers();
     std::list<User>::const_iterator k;

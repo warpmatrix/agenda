@@ -25,7 +25,7 @@ bool AgendaService::userRegister(const std::string &userName, const std::string 
     auto userNameEq = [&userName](const User &user) ->bool {
         if (userName == user.getName() ) return true;
     };
-    if (m_storage->queryUser(userNameEq).size() == 0) {
+    if (m_storage->queryUser(userNameEq).empty() ) {
         m_storage->createUser(User(userName, password, email, phone));
         return true;
     }
@@ -63,27 +63,32 @@ std::list<User> AgendaService::listAllUsers(void) const {
 bool AgendaService::createMeeting(const std::string &userName, const std::string &title,
                                   const std::string &startDate, const std::string &endDate,
                                   const std::vector<std::string> &participator) {
+    if (!Date::isValid(startDate) || !Date::isValid(endDate) || startDate >= endDate)
+        return false;
+
     auto userNameEq = [&userName](const User &user) ->bool{
         if (userName == user.getName() ) return true;
     };
-    if (m_storage->queryUser(userNameEq).size() == 0) return false;
-    if (startDate == endDate) return false;
+    if (m_storage->queryUser(userNameEq).empty() ) return false;
     std::list<Meeting> meeting_list = listAllMeetings(userName);
     for (auto it=meeting_list.begin(); it!=meeting_list.end(); it++) {
         if (it->getStartDate() < endDate && it->getEndDate() > startDate)
             return false;
     }
+
     auto titleEq = [&title](const Meeting &meeting) ->bool {
         if (meeting.getTitle() == title) return true;
     };
-    if (m_storage->queryMeeting(titleEq).size() > 0) return false;
-    if (participator.size() == 0) return false;
+    if (m_storage->queryMeeting(titleEq).empty() ) return false;
+//
+    if (participator.empty() ) return false;
     for (int i=0; i<participator.size(); i++) {
         std::string partiName = participator[i];
         auto userNameEq = [partiName](const User &user) ->bool{
             if (partiName == user.getName() ) return true;
         };
-        if (m_storage->queryUser(userNameEq).size() == 0) return false;
+        if (m_storage->queryUser(userNameEq).size() != participator.size() )
+            return false;
         std::list<Meeting> meeting_list = listAllMeetings(participator[i]);
         for (auto it=meeting_list.begin(); it!=meeting_list.end(); it++) {
             if (it->getStartDate() < endDate && it->getEndDate() > startDate)
@@ -100,11 +105,10 @@ bool AgendaService::addMeetingParticipator(const std::string &userName,
     auto userNameEq = [&participator](const User &user) ->bool{
         if (participator == user.getName() ) return true;
     };
-    if (m_storage->queryUser(userNameEq).size() == 0) return false;
+    if (m_storage->queryUser(userNameEq).empty() ) return false;
     std::list<Meeting> meeting_list = listAllMeetings(participator);
     auto matchedM = [&userName, &title, &meeting_list](const Meeting &meeting) ->bool{
-        if (title != meeting.getTitle() ||
-            userName != meeting.getSponsor() )
+        if (title != meeting.getTitle() || userName != meeting.getSponsor() )
             return false;
         for (auto it=meeting_list.begin(); it!=meeting_list.end(); it++) {
             if (it->getStartDate() < meeting.getEndDate() &&
@@ -127,7 +131,7 @@ bool AgendaService::removeMeetingParticipator(const std::string &userName,
     auto matchedM = [&](const Meeting &meeting) ->bool {
         return title == meeting.getTitle() 
             && userName == meeting.getSponsor()
-            && !meeting.isParticipator(userName);
+            && meeting.isParticipator(participator);
     };
     auto rmParti = [&participator](Meeting &meeting) {
         meeting.removeParticipator(participator);
@@ -145,8 +149,7 @@ bool AgendaService::removeMeetingParticipator(const std::string &userName,
 bool AgendaService::quitMeeting(const std::string &userName, const std::string &title) {
     auto filter = [&](const Meeting &meeting) ->bool {
         return title == meeting.getTitle() 
-            && meeting.isParticipator(userName)
-            && userName != meeting.getSponsor();
+            && meeting.isParticipator(userName);
     };
     auto rmParti = [&userName](Meeting &meeting) {
         meeting.removeParticipator(userName);
