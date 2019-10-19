@@ -61,43 +61,97 @@ std::list<User> AgendaService::listAllUsers(void) const {
 }
 
 bool AgendaService::createMeeting(const std::string &userName, const std::string &title,
-                                  const std::string &startDate, const std::string &endDate,
-                                  const std::vector<std::string> &participator) {
-    if (!Date::isValid(startDate) || !Date::isValid(endDate) || startDate >= endDate)
+                     const std::string &startDate, const std::string &endDate,
+                     const std::vector<std::string> &participator) {
+    Date start = Date::stringToDate(startDate);
+    Date end = Date::stringToDate(endDate);
+    if(!Date::isValid(start) || !Date::isValid(end) || start >= end)
+        return false;
+    
+    if(participator.empty())
         return false;
 
-    auto userNameEq = [&userName](const User &user) ->bool{
-        if (userName == user.getName() ) return true;
+    bool have = false;
+    std::list<User> user = listAllUsers();
+    std::list<User>::const_iterator k;
+    for(k = user.begin(); k != user.end(); k++) {
+        if(userName == k->getName()) {
+            have = true;
+            break;
+        }
+    }
+	if(!have)
+		return false;
+
+
+    std::function<bool(const Meeting &)> filter = [&title](const Meeting& t_meeting) {
+        return t_meeting.getTitle() == title;
     };
-    if (m_storage->queryUser(userNameEq).empty() ) return false;
-    std::list<Meeting> meeting_list = listAllMeetings(userName);
-    for (auto it=meeting_list.begin(); it!=meeting_list.end(); it++) {
-        if (it->getStartDate() < endDate && it->getEndDate() > startDate)
+    bool unique = m_storage->queryMeeting(filter).empty();
+    if(!unique)
+        return false;
+
+    std::list<Meeting> allMeetings = listAllMeetings(userName);
+    std::list<Meeting>::const_iterator i;
+    for(i = allMeetings.begin(); i != allMeetings.end(); i++) {
+        if(!(start >= i->getEndDate() || end <= i->getStartDate()))
             return false;
     }
 
-    auto titleEq = [&title](const Meeting &meeting) ->bool {
-        if (meeting.getTitle() == title) return true;
-    };
-    if (m_storage->queryMeeting(titleEq).empty() ) return false;
-//
-    if (participator.empty() ) return false;
-    for (int i=0; i<participator.size(); i++) {
-        std::string partiName = participator[i];
-        auto userNameEq = [partiName](const User &user) ->bool{
-            if (partiName == user.getName() ) return true;
-        };
-        if (m_storage->queryUser(userNameEq).size() != participator.size() )
-            return false;
-        std::list<Meeting> meeting_list = listAllMeetings(participator[i]);
-        for (auto it=meeting_list.begin(); it!=meeting_list.end(); it++) {
-            if (it->getStartDate() < endDate && it->getEndDate() > startDate)
-                return false;
-        }
-    }
-    m_storage->createMeeting(Meeting(userName, participator, startDate, endDate, title));
-    return true;
+    std::vector<std::string> tmp_participator;
+    Meeting meeting(userName, tmp_participator, start, end, title);
+    m_storage->createMeeting(meeting);
+
+    std::vector<std::string>::const_iterator j;
+    for(j = participator.begin(); j != participator.end(); j++){
+		bool success;
+		success = addMeetingParticipator(userName, title, *j);
+    	if(!success) {
+			m_storage->deleteMeeting(filter);
+			return false;
+		}
+	}
+	return true;
 }
+
+// bool AgendaService::createMeeting(const std::string &userName, const std::string &title,
+//                                   const std::string &startDate, const std::string &endDate,
+//                                   const std::vector<std::string> &participator) {
+//     if (!Date::isValid(startDate) || !Date::isValid(endDate) || startDate >= endDate)
+//         return false;
+
+//     auto userNameEq = [&userName](const User &user) ->bool{
+//         if (userName == user.getName() ) return true;
+//     };
+//     if (m_storage->queryUser(userNameEq).empty() ) return false;
+//     std::list<Meeting> meeting_list = listAllMeetings(userName);
+//     for (auto it=meeting_list.begin(); it!=meeting_list.end(); it++) {
+//         if (it->getStartDate() < endDate && it->getEndDate() > startDate)
+//             return false;
+//     }
+
+//     auto titleEq = [&title](const Meeting &meeting) ->bool {
+//         if (meeting.getTitle() == title) return true;
+//     };
+//     if (m_storage->queryMeeting(titleEq).empty() ) return false;
+// //
+//     if (participator.empty() ) return false;
+//     for (int i=0; i<participator.size(); i++) {
+//         std::string partiName = participator[i];
+//         auto userNameEq = [partiName](const User &user) ->bool{
+//             if (partiName == user.getName() ) return true;
+//         };
+//         if (m_storage->queryUser(userNameEq).size() != participator.size() )
+//             return false;
+//         std::list<Meeting> meeting_list = listAllMeetings(participator[i]);
+//         for (auto it=meeting_list.begin(); it!=meeting_list.end(); it++) {
+//             if (it->getStartDate() < endDate && it->getEndDate() > startDate)
+//                 return false;
+//         }
+//     }
+//     m_storage->createMeeting(Meeting(userName, participator, startDate, endDate, title));
+//     return true;
+// }
 
 bool AgendaService::addMeetingParticipator(const std::string &userName,
                                            const std::string &title,
