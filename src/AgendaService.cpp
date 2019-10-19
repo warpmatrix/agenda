@@ -137,8 +137,13 @@ bool AgendaService::quitMeeting(const std::string &userName, const std::string &
     auto rmParti = [&userName](Meeting &meeting) {
         meeting.removeParticipator(userName);
     };
-    if (m_storage->updateMeeting(filter, rmParti) > 0)
+    if (m_storage->updateMeeting(filter, rmParti) > 0) {
+        auto noParti = [](const Meeting &meeting) ->bool {
+            return meeting.getParticipator().empty();
+        };
+        m_storage->deleteMeeting(noParti);
         return true;
+    }
     else return false;
 }
 
@@ -163,7 +168,7 @@ std::list<Meeting> AgendaService::meetingQuery(const std::string &userName,
     return m_storage->queryMeeting(filter);
 }
 
-std::list<Meeting> AgendaService::listAllMeetings(const std::string &userName) const{
+std::list<Meeting> AgendaService::listAllMeetings(const std::string &userName) const {
     auto hasUser = [&userName](const Meeting &meeting) ->bool {
         return meeting.getSponsor() == userName
             || meeting.isParticipator(userName);
@@ -181,10 +186,7 @@ std::list<Meeting> AgendaService::listAllSponsorMeetings(const std::string &user
 std::list<Meeting> AgendaService::listAllParticipateMeetings(
     const std::string &userName) const {
     auto userParti = [&userName](const Meeting &meeting) ->bool {
-        std::vector<std::string> participators = meeting.getParticipator();
-        for (int i=0; i<participators.size(); i++)
-            if (participators[i] == userName) return true;
-        return false;
+        return meeting.isParticipator(userName);
     };
     return m_storage->queryMeeting(userParti);
 }
@@ -205,10 +207,6 @@ bool AgendaService::deleteAllMeetings(const std::string &userName) {
     else return false;
 }
 
-void AgendaService::startAgenda(void) {
-    
-}
+void AgendaService::startAgenda(void) {}
 
-void AgendaService::quitAgenda(void) {
-    
-}
+void AgendaService::quitAgenda(void) {}
