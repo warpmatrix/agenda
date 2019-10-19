@@ -1,4 +1,5 @@
 #include "AgendaService.hpp"
+#include <iostream>
 
 AgendaService::AgendaService() {
     m_storage = Storage::getInstance();
@@ -40,7 +41,7 @@ bool AgendaService::deleteUser(const std::string &userName, const std::string &p
     deleteAllMeetings(userName);
     std::list<Meeting> meeting_list = listAllParticipateMeetings(userName);
     for (auto it=meeting_list.begin(); it!=meeting_list.end(); it++) {
-        it->removeParticipator(userName);
+        quitMeeting(userName, it->getTitle());
     }
     if (m_storage->deleteUser(match) > 0) {
         auto noParti = [](const Meeting &meeting) ->bool {

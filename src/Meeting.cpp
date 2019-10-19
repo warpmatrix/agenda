@@ -33,12 +33,13 @@ void Meeting::addParticipator(const std::string &t_participator) {
 	m_participators.push_back(t_participator);
 }
 void Meeting::removeParticipator(const std::string &t_participator) {
-	std::vector<std::string>::const_iterator it;
-	for (it=m_participators.begin(); it!=m_participators.end(); it++)
+	std::vector<std::string>::iterator it;
+	for (it=m_participators.begin(); it!=m_participators.end(); it++) {
 		if (*it == t_participator) {
 			m_participators.erase(it);
 			break;
 		}
+	}
 }
 Date Meeting::getStartDate(void) const {
 	return m_startDate;
