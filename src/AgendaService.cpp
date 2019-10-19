@@ -84,7 +84,7 @@ bool AgendaService::createMeeting(const std::string &userName, const std::string
             if (partiName == user.getName() ) return true;
         };
         if (m_storage->queryUser(userNameEq).size() == 0) return false;
-        std::list<Meeting> meeting_list = listAllMeetings(partiName);
+        std::list<Meeting> meeting_list = listAllMeetings(participator[i]);
         for (auto it=meeting_list.begin(); it!=meeting_list.end(); it++) {
             if (it->getStartDate() < endDate && it->getEndDate() > startDate)
                 return false;
