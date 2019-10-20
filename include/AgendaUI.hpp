@@ -3,18 +3,20 @@
 
 #include "AgendaService.hpp"
 #include <iostream>
+#include <iomanip>
 #include <string>
+
 
 class AgendaUI {
    public:
     AgendaUI();
     void OperationLoop(void);
+    void startAgenda(void);
 
    private:
     /**
      * constructor
      */
-    void startAgenda(void);
 
     /**
      * catch user's operation
@@ -22,6 +24,9 @@ class AgendaUI {
      */
     std::string getOperation();
 
+    void printAction();
+    void printUnLogAct();
+    void printLogInAct();
     /**
      * execute the operation
      * @return if the operationloop continue
@@ -62,6 +67,10 @@ class AgendaUI {
      * user create a meeting with someone else
      */
     void createMeeting(void);
+
+    void addMeetingParti(void);
+    void removeMeetingParti(void);
+    void quitMeeting(void);
 
     /**
      * list all meetings from storage
