@@ -54,6 +54,8 @@ bool AgendaService::createMeeting(const std::string &userName, const std::string
                                   const std::vector<std::string> &participator) {
     Date start = Date::stringToDate(startDate);
     Date end = Date::stringToDate(endDate);
+
+    
     if (!Date::isValid(startDate) || !Date::isValid(endDate) || startDate >= endDate)
         return false;
 
@@ -61,26 +63,18 @@ bool AgendaService::createMeeting(const std::string &userName, const std::string
         return userName == user.getName();
     };
     if (m_storage->queryUser(userNameEq).empty() ) return false;
-    // std::list<Meeting> meeting_list = listAllMeetings(userName);
-    // for (auto it=meeting_list.begin(); it!=meeting_list.end(); it++) {
-    //     if (it->getStartDate() < endDate && it->getEndDate() > startDate)
-    //         return false;
-    // }
+    std::list<Meeting> meeting_list = listAllMeetings(userName);
+    for (auto it=meeting_list.begin(); it!=meeting_list.end(); it++) {
+        if (it->getStartDate() < endDate && it->getEndDate() > startDate)
+            return false;
+    }
 
     auto titleEq = [&title](const Meeting &meeting) ->bool {
         return meeting.getTitle() == title;
     };
     if (!m_storage->queryMeeting(titleEq).empty() ) return false;
+    if (participator.empty() ) return false;
 
-
-    if(participator.empty())
-        return false;
-    std::list<Meeting> allMeetings = listAllMeetings(userName);
-    std::list<Meeting>::const_iterator i;
-    for(i = allMeetings.begin(); i != allMeetings.end(); i++) {
-        if(!(start >= i->getEndDate() || end <= i->getStartDate()))
-            return false;
-    }
 
     std::vector<std::string> tmp_participator;
     Meeting meeting(userName, tmp_participator, start, end, title);
@@ -98,7 +92,6 @@ bool AgendaService::createMeeting(const std::string &userName, const std::string
 		}
 	}
 	return true;
-    // if (participator.empty() ) return false;
     // for (int i=0; i<participator.size(); i++) {
     //     std::string partiName = participator[i];
     //     auto userNameEq = [partiName](const User &user) ->bool{
