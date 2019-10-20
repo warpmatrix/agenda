@@ -113,73 +113,6 @@ bool AgendaService::createMeeting(const std::string &userName, const std::string
 	return true;
 }
 
-
-bool AgendaService::addMeetingParticipator(const std::string &userName,
-                              const std::string &title,
-                              const std::string &participator) {
-    std::list<User> user = listAllUsers();
-    int user_size = user.size();
-    bool in = false;
-    std::list<User>::const_iterator k;
-    for(k = user.begin(); k != user.end(); k++) {
-        if(participator == k->getName()) {
-            in = true;
-            break;
-        }
-    }
-    if(!in)
-        return false;
-
-    std::list<Meeting> userMeetings = listAllSponsorMeetings(userName);
-    std::list<Meeting>::iterator i;
-    for(i = userMeetings.begin(); i != userMeetings.end(); i++) {
-        if(i->getTitle() == title) {
-
-            std::list<Meeting> participactorMeetings = listAllMeetings(participator);
-            std::list<Meeting>::const_iterator k;
-            for(k = participactorMeetings.begin(); k != participactorMeetings.end(); k++) {
-                if(!(i->getStartDate() >= k->getEndDate() || i->getEndDate() <= k->getStartDate()))
-                    return false;
-            }
-
-            std::function<bool(const Meeting &)> filter = [&userName, &title](const Meeting& t_meeting) {
-                return t_meeting.getSponsor() == userName && t_meeting.getTitle() == title;
-            };
-            std::function<void(Meeting &)> switcher = [&participator](Meeting & t_meeting) {
-                t_meeting.addParticipator(participator);
-            };
-            return m_storage->updateMeeting(filter, switcher);
-        }
-    }
-    return false;
-}
-
-
-bool AgendaService::removeMeetingParticipator(const std::string &userName,
-                                 const std::string &title,
-                                 const std::string &participator) {
-    
-    std::function<bool(const Meeting &)> filter = [&userName, &title, &participator](const Meeting& t_meeting) {
-        return t_meeting.getSponsor() == userName && t_meeting.getTitle() == title && t_meeting.isParticipator(participator);
-    };
-    std::function<void(Meeting &)> switcher = [&participator](Meeting & t_meeting) {
-        t_meeting.removeParticipator(participator);
-    };
-    bool success = m_storage->updateMeeting(filter, switcher);
-    if(success) {
-        std::function<bool(const Meeting &)> empty_filter = [&userName](const Meeting& t_meeting) {
-            return t_meeting.getParticipator().empty();
-        };
-        m_storage->deleteMeeting(empty_filter);
-        return true;
-    }
-    return false;
-}
-
-// AgendaService::AgendaService() {
-//     m_storage = Storage::getInstance();
-// }
-
 // AgendaService::~AgendaService() {
 //     m_storage = nullptr;
 // }
@@ -265,52 +198,52 @@ bool AgendaService::removeMeetingParticipator(const std::string &userName,
 //     return true;
 // }
 
-// bool AgendaService::addMeetingParticipator(const std::string &userName,
-//                                            const std::string &title,
-//                                            const std::string &participator) {
-//     auto userNameEq = [&participator](const User &user) ->bool {
-//         return participator == user.getName();
-//     };
-//     if (m_storage->queryUser(userNameEq).empty() ) return false;
-//     std::list<Meeting> meeting_list = listAllMeetings(participator);
-//     auto matchedM = [&userName, &title, &meeting_list](const Meeting &meeting) ->bool {
-//         if (title != meeting.getTitle() || userName != meeting.getSponsor() )
-//             return false;
-//         for (auto it=meeting_list.begin(); it!=meeting_list.end(); it++) {
-//             if (it->getStartDate() < meeting.getEndDate() &&
-//                 it->getEndDate() > meeting.getStartDate() )
-//                 return false;
-//         }
-//         return true;
-//     };
-//     auto addParti = [&participator](Meeting &meeting) {
-//         meeting.addParticipator(participator);
-//     };
-//     if (m_storage->updateMeeting(matchedM, addParti) > 0)
-//         return true;
-//     else return false;
-// }
+bool AgendaService::addMeetingParticipator(const std::string &userName,
+                                           const std::string &title,
+                                           const std::string &participator) {
+    auto userNameEq = [&participator](const User &user) ->bool {
+        return participator == user.getName();
+    };
+    if (m_storage->queryUser(userNameEq).empty() ) return false;
+    std::list<Meeting> meeting_list = listAllMeetings(participator);
+    auto matchedM = [&userName, &title, &meeting_list](const Meeting &meeting) ->bool {
+        if (title != meeting.getTitle() || userName != meeting.getSponsor() )
+            return false;
+        for (auto it=meeting_list.begin(); it!=meeting_list.end(); it++) {
+            if (it->getStartDate() < meeting.getEndDate() &&
+                it->getEndDate() > meeting.getStartDate() )
+                return false;
+        }
+        return true;
+    };
+    auto addParti = [&participator](Meeting &meeting) {
+        meeting.addParticipator(participator);
+    };
+    if (m_storage->updateMeeting(matchedM, addParti) > 0)
+        return true;
+    else return false;
+}
 
-// bool AgendaService::removeMeetingParticipator(const std::string &userName,
-//                                               const std::string &title,
-//                                               const std::string &participator) {
-//     auto matchedM = [&](const Meeting &meeting) ->bool {
-//         return title == meeting.getTitle() 
-//             && userName == meeting.getSponsor()
-//             && meeting.isParticipator(participator);
-//     };
-//     auto rmParti = [&participator](Meeting &meeting) {
-//         meeting.removeParticipator(participator);
-//     };
-//     if (m_storage->updateMeeting(matchedM, rmParti) > 0) {
-//         auto noParti = [](const Meeting &meeting) ->bool {
-//             return meeting.getParticipator().empty();
-//         };
-//         m_storage->deleteMeeting(noParti);
-//         return true;
-//     }
-//     else return false;
-// }
+bool AgendaService::removeMeetingParticipator(const std::string &userName,
+                                              const std::string &title,
+                                              const std::string &participator) {
+    auto matchedM = [&](const Meeting &meeting) ->bool {
+        return title == meeting.getTitle() 
+            && userName == meeting.getSponsor()
+            && meeting.isParticipator(participator);
+    };
+    auto rmParti = [&participator](Meeting &meeting) {
+        meeting.removeParticipator(participator);
+    };
+    if (m_storage->updateMeeting(matchedM, rmParti) > 0) {
+        auto noParti = [](const Meeting &meeting) ->bool {
+            return meeting.getParticipator().empty();
+        };
+        m_storage->deleteMeeting(noParti);
+        return true;
+    }
+    else return false;
+}
 
 bool AgendaService::quitMeeting(const std::string &userName, const std::string &title) {
     auto filter = [&](const Meeting &meeting) ->bool {
