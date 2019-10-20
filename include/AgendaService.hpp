@@ -4,6 +4,7 @@
 #include <list>
 #include <string>
 #include "Storage.hpp"
+#include "Exception.hpp"
 
 class AgendaService {
  public:

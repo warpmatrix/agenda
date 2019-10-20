@@ -52,12 +52,8 @@ std::list<User> AgendaService::listAllUsers(void) const {
 bool AgendaService::createMeeting(const std::string &userName, const std::string &title,
                                   const std::string &startDate, const std::string &endDate,
                                   const std::vector<std::string> &participator) {
-    Date start = Date::stringToDate(startDate);
-    Date end = Date::stringToDate(endDate);
-
-    
     if (!Date::isValid(startDate) || !Date::isValid(endDate) || startDate >= endDate)
-        return false;
+        throw AgendaException("Time is invalid.");
 
     auto userNameEq = [&userName](const User &user) ->bool {
         return userName == user.getName();
@@ -66,18 +62,22 @@ bool AgendaService::createMeeting(const std::string &userName, const std::string
     std::list<Meeting> meeting_list = listAllMeetings(userName);
     for (auto it=meeting_list.begin(); it!=meeting_list.end(); it++) {
         if (it->getStartDate() < endDate && it->getEndDate() > startDate)
-            return false;
+            throw AgendaException("Time has overlap.");
     }
 
     auto titleEq = [&title](const Meeting &meeting) ->bool {
         return meeting.getTitle() == title;
     };
-    if (!m_storage->queryMeeting(titleEq).empty() ) return false;
-    if (participator.empty() ) return false;
+    if (!m_storage->queryMeeting(titleEq).empty() )
+        throw AgendaException("The meeting has already exists.");
+
+    if (participator.empty() )
+        throw AgendaException("There is no participator in this meeting.");
+
 
 
     std::vector<std::string> participators;
-    Meeting meeting(userName, participators, start, end, title);
+    Meeting meeting(userName, participators, startDate, endDate, title);
     m_storage->createMeeting(meeting);
     auto filter = [&title](const Meeting& t_meeting) {
         return t_meeting.getTitle() == title;

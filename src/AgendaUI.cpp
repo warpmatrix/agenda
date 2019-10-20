@@ -1,6 +1,5 @@
 #include "AgendaUI.hpp"
 
-
 void AgendaUI::printAction() {
     int num = 30;
     for (int i=0; i<num; i++)
@@ -90,8 +89,13 @@ bool AgendaUI::executeOperation(std::string t_operation) {
         return true;
     }
     else if (t_operation == "cm") {
-        createMeeting();
-        return true;
+        try {
+            createMeeting();
+            return true;
+        }
+        catch (AgendaException e) {
+            std::cout << e.what() << '\n';
+        }
     }
     else if (t_operation == "amp") {
         addMeetingParti();
