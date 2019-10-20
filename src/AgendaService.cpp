@@ -52,6 +52,10 @@ std::list<User> AgendaService::listAllUsers(void) const {
 bool AgendaService::createMeeting(const std::string &userName, const std::string &title,
                                   const std::string &startDate, const std::string &endDate,
                                   const std::vector<std::string> &participator) {
+    Date start = Date::stringToDate(startDate);
+    Date end = Date::stringToDate(endDate);
+
+    
     if (!Date::isValid(startDate) || !Date::isValid(endDate) || startDate >= endDate)
         return false;
 
@@ -71,21 +75,21 @@ bool AgendaService::createMeeting(const std::string &userName, const std::string
     if (!m_storage->queryMeeting(titleEq).empty() ) return false;
     if (participator.empty() ) return false;
 
-    for (int i=0; i<participator.size(); i++) {
-        std::string partiName = participator[i];
-        auto userNameEq = [partiName](const User &user) ->bool{
-            return partiName == user.getName();
-        };
-        if (m_storage->queryUser(userNameEq).size() != 1)
-            return false;
-        std::list<Meeting> meeting_list = listAllMeetings(participator[i]);
-        for (auto it=meeting_list.begin(); it!=meeting_list.end(); it++) {
-            if (it->getStartDate() < endDate && it->getEndDate() > startDate)
-                return false;
-        }
-    }
-    m_storage->createMeeting(Meeting(userName, participator, startDate, endDate, title));
-    return true;
+
+    std::vector<std::string> participators;
+    Meeting meeting(userName, participators, start, end, title);
+    m_storage->createMeeting(meeting);
+    auto filter = [&title](const Meeting& t_meeting) {
+        return t_meeting.getTitle() == title;
+    };
+    for(auto j = participator.begin(); j != participator.end(); j++){
+		bool success = addMeetingParticipator(userName, title, *j);
+    	if(!success) {
+			m_storage->deleteMeeting(filter);
+			return false;
+		}
+	}
+	return true;
 }
 
 bool AgendaService::addMeetingParticipator(const std::string &userName,
