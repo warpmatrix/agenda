@@ -1,5 +1,4 @@
 #include "AgendaService.hpp"
-#include "iostream"
 
 AgendaService::AgendaService() {
     m_storage = Storage::getInstance();
@@ -111,34 +110,12 @@ bool AgendaService::createMeeting(const std::string &userName, const std::string
 		}
 	}
 	return true;
-    /*
-    int participator_size = participator.size();
-    for(int j = 0; j < participator_size; j++) {
-        std::list<Meeting> participactorMeetings = listAllMeetings(participator[j]);
-        std::list<Meeting>::const_iterator k;
-        for(k = participactorMeetings.begin(); k != participactorMeetings.end(); k++) {
-            if(!(start >= i->getEndDate() || end <= i->getStartDate()))
-                return false;
-        }
-    }
-    */
-
-    /*
-    std::list<Meeting> userMeetings = listAllSponsorMeetings(userName);
-    std::list<Meeting>::iterator j;
-    for(j = userMeetings.begin(); j != userMeetings.end(); j++) {
-        if(!(start <= j->getEndDate() || end >= j->getStartDate()))
-            return false;
-    }
-    */
 }
 
 
 bool AgendaService::addMeetingParticipator(const std::string &userName,
                               const std::string &title,
                               const std::string &participator) {
-    //maybe
-    //check  participator
     std::list<User> user = listAllUsers();
     int user_size = user.size();
     bool in = false;
@@ -152,7 +129,6 @@ bool AgendaService::addMeetingParticipator(const std::string &userName,
     if(!in)
         return false;
 
-    //maybe
     std::list<Meeting> userMeetings = listAllSponsorMeetings(userName);
     std::list<Meeting>::iterator i;
     for(i = userMeetings.begin(); i != userMeetings.end(); i++) {
@@ -161,11 +137,9 @@ bool AgendaService::addMeetingParticipator(const std::string &userName,
             std::list<Meeting> participactorMeetings = listAllMeetings(participator);
             std::list<Meeting>::const_iterator k;
             for(k = participactorMeetings.begin(); k != participactorMeetings.end(); k++) {
-                //here
                 if(!(i->getStartDate() >= k->getEndDate() || i->getEndDate() <= k->getStartDate()))
                     return false;
             }
-            //i->addParticipator(participator);
 
             std::function<bool(const Meeting &)> filter = [&userName, &title](const Meeting& t_meeting) {
                 return t_meeting.getSponsor() == userName && t_meeting.getTitle() == title;
@@ -179,39 +153,6 @@ bool AgendaService::addMeetingParticipator(const std::string &userName,
     return false;
 }
 
-/*
-bool AgendaService::removeMeetingParticipator(const std::string &userName,
-                                 const std::string &title,
-                                 const std::string &participator) {
-    std::list<Meeting> userMeetings = listAllSponsorMeetings(userName);
-    std::list<Meeting>::iterator i;
-    for(i = userMeetings.begin(); i != userMeetings.end(); i++) {
-        if(i->getTitle() == title && i->isParticipator(participator)) {
-            i->removeParticipator(participator);
-            /*
-            std::function<bool(const Meeting &)> filter = [&userName, &title](const Meeting& t_meeting) {
-                if(t_meeting.getSponsor() == userName && t_meeting.getTitle() == title)
-                    return true;
-                return false;
-            };
-            
-            std::function<bool(const Meeting &)> filter = [&title](const Meeting& t_meeting) {
-                return t_meeting.getTitle() == title;
-            };
-
-            if(i->getParticipator().empty()) {
-                return m_storage->deleteMeeting(filter);
-            }
-            
-            std::function<void(Meeting &)> switcher = [&participator](Meeting & t_meeting) {
-                t_meeting.removeParticipator(participator);
-            };
-            return m_storage->updateMeeting(filter, switcher);
-        }
-    }
-    return false;
-}
-*/
 
 bool AgendaService::removeMeetingParticipator(const std::string &userName,
                                  const std::string &title,
@@ -234,39 +175,6 @@ bool AgendaService::removeMeetingParticipator(const std::string &userName,
     return false;
 }
 
-/*
-bool AgendaService::quitMeeting(const std::string &userName, const std::string &title) {
-    std::list<Meeting> meetings = listAllParticipateMeetings(userName);
-    std::list<Meeting>::iterator i;
-
-    for(i = meetings.begin(); i != meetings.end(); i++) {
-        if(i->getTitle() == title) {
-            i->removeParticipator(userName);
-
-            //maybe
-            std::function<bool(const Meeting &)> filter = [&userName, &title](const Meeting& t_meeting) {
-                if(t_meeting.getTitle() == title && t_meeting.isParticipator(userName))
-                    return true;
-                return false;
-            };
-            
-            std::function<bool(const Meeting &)> filter = [&title](const Meeting& t_meeting) {
-                return t_meeting.getTitle() == title;
-            };
-            
-            if(i->getParticipator().empty()) {
-                return m_storage->deleteMeeting(filter);
-            }
-
-            std::function<void(Meeting &)> switcher = [i](Meeting & t_meeting) {
-                t_meeting = *i;
-            };
-            return m_storage->updateMeeting(filter, switcher);
-        }
-    }
-    return false;
-}
-*/
 bool AgendaService::quitMeeting(const std::string &userName, const std::string &title) {
     std::function<bool(const Meeting &)> filter = [&userName, &title](const Meeting& t_meeting) {
         return t_meeting.getTitle() == title && t_meeting.isParticipator(userName);
@@ -291,20 +199,10 @@ std::list<Meeting> AgendaService::meetingQuery(const std::string &userName,
     std::function<bool(const Meeting &)> filter = [&userName, &title](const Meeting& t_meeting) {
 
         return t_meeting.getTitle() == title && (t_meeting.getSponsor() == userName || t_meeting.isParticipator(userName));
-        /*
-        if(t_meeting.getTitle() != title)
-            return false;
-
-        if(t_meeting.getSponsor() == userName)
-            return  true;
-        
-        return t_meeting.isParticipator(userName);
-        */
     };
     return m_storage->queryMeeting(filter);
 }
 
-//maybe
 std::list<Meeting> AgendaService::meetingQuery(const std::string &userName,
                                   const std::string &startDate,
                                   const std::string &endDate) const {
@@ -322,10 +220,6 @@ std::list<Meeting> AgendaService::meetingQuery(const std::string &userName,
             return false;
 
         return true;
-        /*
-        return (meeting.getSponsor() == userName || meeting.isParticipator(userName))
-            && meeting.getEndDate() >= start && meeting.getStartDate() <= end;
-        */
     };
     return m_storage->queryMeeting(filter);
 }
@@ -335,12 +229,6 @@ std::list<Meeting> AgendaService::listAllMeetings(const std::string &userName) c
     std::function<bool(const Meeting &)> filter = [&userName](const Meeting& t_meeting) {
 
         return t_meeting.getSponsor() == userName || t_meeting.isParticipator(userName);
-        /*
-        if()
-            return  true;
-
-        return ;
-        */
     };
     return m_storage->queryMeeting(filter);
 }
@@ -349,11 +237,6 @@ std::list<Meeting> AgendaService::listAllMeetings(const std::string &userName) c
 std::list<Meeting> AgendaService::listAllSponsorMeetings(const std::string &userName) const {
     std::function<bool(const Meeting &)> filter = [&userName](const Meeting& t_meeting) {
         return t_meeting.getSponsor() == userName;
-        /*
-        if()
-            return true;
-        return false;
-        */
     };
     return m_storage->queryMeeting(filter);
 }
@@ -363,26 +246,13 @@ std::list<Meeting> AgendaService::listAllParticipateMeetings(
       const std::string &userName) const {
     std::function<bool(const Meeting &)> filter = [&userName](const Meeting& t_meeting) {
         return t_meeting.isParticipator(userName);
-        //return t_meeting.getSponsor() != userName && t_meeting.isParticipator(userName);
-        /*
-        if()
-            return false;
-
-        return ;
-        */
     };
     return m_storage->queryMeeting(filter);
 }
 
-//
 bool AgendaService::deleteMeeting(const std::string &userName, const std::string &title) {
     std::function<bool(const Meeting &)> filter = [&userName, &title](const Meeting& t_meeting) {
         return t_meeting.getSponsor() == userName && t_meeting.getTitle() == title;
-        /*
-        if()
-            return true;
-        return false;
-        */
     };
     return m_storage->deleteMeeting(filter);
 }
@@ -391,25 +261,14 @@ bool AgendaService::deleteMeeting(const std::string &userName, const std::string
 bool AgendaService::deleteAllMeetings(const std::string &userName) {
     std::function<bool(const Meeting &)> filter = [&userName](const Meeting& t_meeting) {
         return t_meeting.getSponsor() == userName;
-        /*
-        if()
-            return true;
-        return false;
-        */
     };
     return m_storage->deleteMeeting(filter);
 }
 
-  /**
-   * start Agenda service and connect to storage
-   */
 void AgendaService::startAgenda(void) {
     
 }
 
-  /**
-   * quit Agenda service
-   */
 void AgendaService::quitAgenda(void) {
     m_storage->~Storage();
 }
