@@ -133,6 +133,7 @@ bool AgendaUI::executeOperation(std::string t_operation) {
         deleteAllMeetings();
         return true;
     }
+    else return true;
 }
 void AgendaUI::userLogIn(void) {
     std::cout << "[log in] [username] [password]" << '\n';
@@ -210,7 +211,7 @@ void AgendaUI::createMeeting(void) {
     std::cin >> partiNum;
     std::vector<std::string> parti_vector;
     for (int i=0; i<partiNum; i++) {
-        std::cout << "[create meeting] [please enter the participator " << i+1 << " ]" << '\n';
+        std::cout << "[create meeting] [please enter the participator " << i << " ]" << '\n';
         std::cout << "[create meeting] ";
         std::string participator;
         std::cin >> participator;
@@ -283,7 +284,7 @@ void AgendaUI::queryMeetingByTimeInterval(void) {
     std::cout << "[query meeting] [start time(yyyy-mm-dd/hh:mm)] [end time(yyyy-mm-dd/hh:mm)]" << '\n';
     std::cout << "[query meeting] ";
     std::string startDate, endDate;
-    std::cin >> startDate >> endDate;
+    std::cin >> startDate, endDate;
     printMeetings(m_agendaService.meetingQuery(m_userName, startDate, endDate));
 }
 void AgendaUI::deleteMeetingByTitle(void) {

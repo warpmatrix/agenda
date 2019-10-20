@@ -5,6 +5,7 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <signal.h>
 
 
 class AgendaUI {
@@ -13,6 +14,10 @@ class AgendaUI {
     void OperationLoop(void);
     void startAgenda(void);
 
+    /**
+     * quit the Agenda
+     */
+    void quitAgenda(void);
    private:
     /**
      * constructor
@@ -48,10 +53,6 @@ class AgendaUI {
      */
     void userLogOut(void);
 
-    /**
-     * quit the Agenda
-     */
-    void quitAgenda(void);
 
     /**
      * delete a user from storage

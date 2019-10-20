@@ -233,4 +233,6 @@ bool AgendaService::deleteAllMeetings(const std::string &userName) {
 
 void AgendaService::startAgenda(void) {}
 
-void AgendaService::quitAgenda(void) {}
+void AgendaService::quitAgenda(void) {
+    m_storage->~Storage();
+}
